@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca Tesina</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-dk:#178060;--green-lt:#e8f7f2;
+  --g100:#f8f9fa;--g200:#e9ecef;--g300:#dee2e6;--g500:#adb5bd;--g700:#495057;--g900:#212529;
+  --white:#fff;--shadow:0 1px 3px rgba(0,0,0,.1);--r:8px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--g100);color:var(--g900);line-height:1.5;min-height:100vh}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid var(--g200);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.hd-title{font-size:18px;font-weight:700;color:var(--green);white-space:nowrap}
+.hd-title span{color:var(--g900)}
+.drive-area{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--g300);flex-shrink:0;transition:background .3s}
+.dot.on{background:var(--green)}
+.drive-lbl{font-size:13px;color:var(--g700)}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:var(--r);border:none;cursor:pointer;font-size:14px;font-weight:500;transition:background .15s,opacity .15s;font-family:inherit}
+.btn:active{opacity:.85}
+.btn-p{background:var(--green);color:#fff}
+.btn-p:hover{background:var(--green-dk)}
+.btn-s{background:var(--white);color:var(--g700);border:1px solid var(--g300)}
+.btn-s:hover{background:var(--g100)}
+.btn-d{background:#fff;color:#dc3545;border:1px solid #dc3545}
+.btn-d:hover{background:#fff5f5}
+.btn-sm{padding:5px 12px;font-size:13px}
+.btn-xs{padding:3px 8px;font-size:12px}
+
+/* TABS */
+.tabs-wrap{background:var(--white);border-bottom:1px solid var(--g200);padding:0 20px}
+.tabs{display:flex;gap:2px}
+.tab-btn{padding:11px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:var(--g700);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;font-family:inherit}
+.tab-btn:hover{color:var(--green)}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* CONTAINER */
+.ctr{max-width:820px;margin:0 auto;padding:24px 20px}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:24px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:20px;color:var(--g900)}
+
+/* FORM */
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--g700);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1px solid var(--g300);border-radius:6px;font-size:14px;color:var(--g900);background:var(--white);transition:border-color .15s;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.fg textarea{resize:vertical;min-height:80px}
+.fg .hint{font-size:12px;color:var(--g500);margin-top:4px}
+.fg-narrow{max-width:140px}
+@media(max-width:600px){.fg-narrow{max-width:none}}
+
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* AUTHOR ROWS */
+.arow{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.arow input{flex:1;padding:8px 10px;border:1px solid var(--g300);border-radius:6px;font-size:14px;font-family:inherit}
+.arow input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.rm-btn{background:none;border:1px solid var(--g300);border-radius:6px;width:30px;height:34px;cursor:pointer;color:var(--g500);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.rm-btn:hover{border-color:#dc3545;color:#dc3545}
+
+/* FORM ACTIONS */
+.f-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--g200)}
+
+/* SEARCH */
+.search-wrap{margin-bottom:12px;position:relative}
+.search-input{width:100%;padding:10px 14px 10px 40px;border:1px solid var(--g300);border-radius:var(--r);font-size:14px;background:var(--white);font-family:inherit}
+.search-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--g500);pointer-events:none;font-size:16px}
+.count-lbl{font-size:13px;color:var(--g500);margin-bottom:10px}
+
+/* SOURCE CARDS */
+.src-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--r);padding:16px;margin-bottom:10px;transition:box-shadow .15s}
+.src-card:hover{box-shadow:var(--shadow)}
+.src-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.src-title{font-size:15px;font-weight:600;color:var(--g900)}
+.src-actions{display:flex;gap:6px;flex-shrink:0}
+.src-meta{font-size:13px;color:var(--g700);margin-bottom:6px}
+.src-cite{font-size:13px;color:var(--green);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px}
+.src-cite:hover{text-decoration:underline}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.tag{background:var(--green-lt);color:var(--green-dk);padding:2px 8px;border-radius:12px;font-size:12px;font-weight:500}
+.tag-sec{background:var(--g100);color:var(--g700)}
+.src-notes{font-size:13px;color:var(--g700);margin-top:8px;padding-top:8px;border-top:1px solid var(--g100);white-space:pre-wrap}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.b-libro{background:#e3f2fd;color:#1565c0}
+.b-articulo{background:#e8f5e9;color:#2e7d32}
+.b-capitulo{background:#fce4ec;color:#880e4f}
+.b-reporte{background:#fff8e1;color:#e65100}
+.b-tesis{background:#f3e5f5;color:#6a1b9a}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--g500)}
+.empty-ico{font-size:48px;margin-bottom:12px}
+.empty-txt{font-size:16px;font-weight:500}
+.empty-sub{font-size:14px;margin-top:4px}
+
+/* REFERENCES TAB */
+.ref-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.ref-hd h2{font-size:18px;font-weight:700}
+.ref-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ref-list{background:var(--white);border-radius:var(--r);border:1px solid var(--g200);padding:24px}
+.ref-item{padding:12px 0;border-bottom:1px solid var(--g100);font-size:14px;line-height:1.75;color:var(--g900)}
+.ref-item:last-child{border-bottom:none}
+.ref-item em{font-style:italic}
+
+/* NOTIFICATION */
+.notif{position:fixed;bottom:24px;right:24px;background:var(--g900);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:1000;max-width:300px}
+.notif.show{transform:translateY(0);opacity:1}
+.notif.ok{background:var(--green)}
+.notif.err{background:#dc3545}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .hd-title{font-size:16px}
+  .drive-lbl{display:none}
+  .tab-btn{padding:10px 10px;font-size:13px}
+  .fr2,.fr3{grid-template-columns:1fr}
+  .f-actions{flex-direction:column-reverse}
+  .f-actions .btn{width:100%;text-align:center}
+  .notif{bottom:16px;right:16px;left:16px;max-width:none}
+  .ref-hd{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-title">Biblioteca <span>Tesina</span></div>
+  <div class="drive-area">
+    <div class="dot" id="dot"></div>
+    <span class="drive-lbl" id="dlbl">Sin conexión</span>
+    <button class="btn btn-s btn-sm" id="dbtn" onclick="handleDriveAuth()">Conectar Drive</button>
+  </div>
+</header>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" id="tb-add" onclick="showTab('add')">+ Agregar</button>
+    <button class="tab-btn" id="tb-lib" onclick="showTab('lib')">Biblioteca</button>
+    <button class="tab-btn" id="tb-ref" onclick="showTab('ref')">Referencias APA</button>
+  </div>
+</div>
+
+<!-- TAB ADD -->
+<div id="tab-add" class="tab-content active">
+<div class="ctr">
+<div class="card">
+  <h2 class="card-title" id="form-title">Nueva fuente bibliográfica</h2>
+  <form id="src-form" onsubmit="handleSubmit(event)" novalidate>
+
+    <div class="fg">
+      <label>Tipo de fuente *</label>
+      <select id="f-tipo" onchange="updateDynamic()">
+        <option value="">— Seleccionar —</option>
+        <option value="libro">Libro</option>
+        <option value="articulo">Artículo de revista</option>
+        <option value="capitulo">Capítulo de libro</option>
+        <option value="reporte">Reporte / Documento oficial</option>
+        <option value="tesis">Tesis</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label>Autores *</label>
+      <div id="authors-box"></div>
+      <button type="button" class="btn btn-s btn-sm" style="margin-top:4px" onclick="addAuthor()">+ Agregar autor</button>
+      <div class="hint">Para organismos (UNESCO, SEP…), escribe el nombre en "Apellido" y deja "Nombre" vacío.</div>
+    </div>
+
+    <div class="fg fg-narrow">
+      <label>Año *</label>
+      <input type="text" id="f-año" placeholder="2021" maxlength="4">
+    </div>
+
+    <div class="fg">
+      <label>Título *</label>
+      <input type="text" id="f-titulo" placeholder="Título completo de la obra">
+    </div>
+
+    <div id="dyn-fields"></div>
+
+    <div class="fg">
+      <label>Palabras clave</label>
+      <input type="text" id="f-kw" placeholder="educación, tecnología, aprendizaje">
+      <div class="hint">Separadas por comas. Se usan para búsqueda.</div>
+    </div>
+
+    <div class="fg">
+      <label>Sección de tesina donde aplica</label>
+      <input type="text" id="f-sec" placeholder="Ej: Marco teórico, Antecedentes, Metodología">
+    </div>
+
+    <div class="fg">
+      <label>Notas personales</label>
+      <textarea id="f-notas" rows="3" placeholder="Resumen, ideas clave, citas textuales, página…"></textarea>
+    </div>
+
+    <div class="f-actions">
+      <button type="button" class="btn btn-s" onclick="cancelEdit()">Cancelar</button>
+      <button type="submit" class="btn btn-p">Guardar fuente</button>
+    </div>
+  </form>
+</div>
+</div>
+</div>
+
+<!-- TAB LIBRARY -->
+<div id="tab-lib" class="tab-content">
+<div class="ctr">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" class="search-input" id="search" placeholder="Buscar por título, autor, palabras clave o notas…" oninput="filterLib()">
+  </div>
+  <div class="count-lbl" id="count-lbl"></div>
+  <div id="lib-box"></div>
+</div>
+</div>
+
+<!-- TAB REFERENCES -->
+<div id="tab-ref" class="tab-content">
+<div class="ctr">
+  <div class="ref-hd">
+    <h2>Referencias APA 7.ª ed.</h2>
+    <div class="ref-actions">
+      <button class="btn btn-s" onclick="exportJSON()">⬇ Exportar JSON</button>
+      <button class="btn btn-p" onclick="copyRefs()">Copiar todo</button>
+    </div>
+  </div>
+  <div id="ref-box"></div>
+</div>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+const CLIENT_ID = '511570354140-630hjpfh0pobdh4of9srunc2365obncf.apps.googleusercontent.com';
+const SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const FNAME = 'biblioteca_tesina.json';
+const LS_KEY = 'biblioteca_tesina';
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let tokenClient = null;
+let accessToken = null;
+let fileId = null;
+let library = [];
+let editId = null;
+let notifT = null;
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const raw = localStorage.getItem(LS_KEY);
+  if (raw) { try { library = JSON.parse(raw); } catch(e) { library = []; } }
+  addAuthor();
+  renderAll();
+  const wait = setInterval(() => {
+    if (window.google && window.google.accounts) { clearInterval(wait); initGSI(); }
+  }, 250);
+});
+
+function initGSI() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPE,
+    callback: async (r) => {
+      if (r.error) { notify('Error de autenticación: ' + r.error, 'err'); return; }
+      accessToken = r.access_token;
+      driveUI(true);
+      notify('Conectado a Google Drive', 'ok');
+      await loadDrive();
+    },
+  });
+}
+
+// ── GOOGLE AUTH ────────────────────────────────────────────────────────────
+function handleDriveAuth() {
+  if (!tokenClient) { notify('La librería de Google aún no carga. Intenta de nuevo.', 'err'); return; }
+  if (accessToken) {
+    google.accounts.oauth2.revoke(accessToken, () => {
+      accessToken = null; fileId = null; driveUI(false); notify('Desconectado de Drive');
+    });
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+
+function driveUI(on) {
+  document.getElementById('dot').className = 'dot' + (on ? ' on' : '');
+  document.getElementById('dlbl').textContent = on ? 'Drive conectado' : 'Sin conexión';
+  document.getElementById('dbtn').textContent = on ? 'Desconectar' : 'Conectar Drive';
+}
+
+// ── DRIVE API ──────────────────────────────────────────────────────────────
+async function loadDrive() {
+  if (!accessToken) return;
+  try {
+    const q = encodeURIComponent(`name='${FNAME}' and trashed=false`);
+    const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`,
+      { headers: { Authorization: `Bearer ${accessToken}` } });
+    const d = await r.json();
+    if (d.files && d.files.length > 0) {
+      fileId = d.files[0].id;
+      const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await fr.json();
+      if (Array.isArray(data)) {
+        library = data;
+        localStorage.setItem(LS_KEY, JSON.stringify(library));
+        renderAll();
+        notify(`Biblioteca cargada: ${library.length} fuentes`, 'ok');
+      }
+    } else {
+      notify('Archivo nuevo en Drive. Se creará al guardar.', 'ok');
+    }
+  } catch(e) { console.error(e); notify('Error al cargar Drive. Usando datos locales.', 'err'); }
+}
+
+async function saveDrive() {
+  if (!accessToken) return;
+  try {
+    const blob = new Blob([JSON.stringify(library, null, 2)], { type: 'application/json' });
+    const meta = JSON.stringify({ name: FNAME, mimeType: 'application/json' });
+    const form = new FormData();
+    form.append('metadata', new Blob([meta], { type: 'application/json' }));
+    form.append('file', blob);
+    const url = fileId
+      ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+    const method = fileId ? 'PATCH' : 'POST';
+    const r = await fetch(url, { method, headers: { Authorization: `Bearer ${accessToken}` }, body: form });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (!fileId) { const f = await r.json(); fileId = f.id; }
+  } catch(e) { console.error(e); notify('Error al guardar en Drive. Guardado localmente.', 'err'); }
+}
+
+async function saveAll() {
+  localStorage.setItem(LS_KEY, JSON.stringify(library));
+  if (accessToken) await saveDrive();
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function showTab(name) {
+  ['add','lib','ref'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+    document.getElementById(`tb-${t}`).classList.toggle('active', t === name);
+  });
+  if (name === 'lib') renderLib();
+  if (name === 'ref') renderRefs();
+}
+
+// ── FORM: AUTHORS ──────────────────────────────────────────────────────────
+function addAuthor(ap = '', nm = '') {
+  const box = document.getElementById('authors-box');
+  const row = document.createElement('div');
+  row.className = 'arow';
+  row.innerHTML = `
+    <input type="text" placeholder="Apellido(s) u Organismo" value="${esc(ap)}" class="a-ap">
+    <input type="text" placeholder="Nombre(s) o iniciales" value="${esc(nm)}" class="a-nm">
+    <button type="button" class="rm-btn" onclick="this.parentElement.remove()" title="Eliminar">×</button>`;
+  box.appendChild(row);
+}
+
+function getAuthors() {
+  return [...document.querySelectorAll('#authors-box .arow')].map(r => ({
+    ap: r.querySelector('.a-ap').value.trim(),
+    nm: r.querySelector('.a-nm').value.trim(),
+  })).filter(a => a.ap || a.nm);
+}
+
+// ── FORM: DYNAMIC FIELDS ───────────────────────────────────────────────────
+const DYN = {
+  libro: `
+    <div class="fr2">
+      <div class="fg"><label>Editorial *</label><input type="text" id="d-editorial" placeholder="Nombre de la editorial"></div>
+      <div class="fg"><label>Edición</label><input type="text" id="d-edicion" placeholder="Ej: 3ra ed."></div>
+    </div>
+    <div class="fg"><label>DOI / URL</label><input type="text" id="d-url" placeholder="https://…"></div>`,
+  articulo: `
+    <div class="fg"><label>Nombre de la revista *</label><input type="text" id="d-revista" placeholder="Nombre completo de la revista"></div>
+    <div class="fr3">
+      <div class="fg"><label>Volumen</label><input type="text" id="d-vol" placeholder="12"></div>
+      <div class="fg"><label>Número</label><input type="text" id="d-num" placeholder="3"></div>
+      <div class="fg"><label>Páginas</label><input type="text" id="d-pags" placeholder="45-67"></div>
+    </div>
+    <div class="fg"><label>DOI / URL</label><input type="text" id="d-doi" placeholder="https://doi.org/…"></div>`,
+  capitulo: `
+    <div class="fg"><label>Título del libro compilado *</label><input type="text" id="d-tlibro" placeholder="Título del libro que contiene el capítulo"></div>
+    <div class="fg">
+      <label>Editor(es) del libro</label>
+      <div id="editors-box"></div>
+      <button type="button" class="btn btn-s btn-sm" style="margin-top:4px" onclick="addEditor()">+ Editor</button>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Páginas del capítulo</label><input type="text" id="d-pcap" placeholder="45-67"></div>
+      <div class="fg"><label>Editorial *</label><input type="text" id="d-editcap" placeholder="Nombre de la editorial"></div>
+    </div>
+    <div class="fg"><label>DOI / URL</label><input type="text" id="d-urlcap" placeholder="https://…"></div>`,
+  reporte: `
+    <div class="fg"><label>Organización emisora</label><input type="text" id="d-org" placeholder="Ej: UNESCO, SEP, CEPAL"><div class="hint">Si el organismo es el autor, déjalo también en el campo Autores arriba.</div></div>
+    <div class="fg"><label>Número de reporte / doc.</label><input type="text" id="d-nrep" placeholder="Ej: Rep-2020-01"></div>
+    <div class="fg"><label>URL</label><input type="text" id="d-urlrep" placeholder="https://…"></div>`,
+  tesis: `
+    <div class="fr2">
+      <div class="fg"><label>Tipo de tesis *</label>
+        <select id="d-ttesis">
+          <option value="maestría">Tesis de maestría</option>
+          <option value="doctorado">Tesis doctoral</option>
+          <option value="licenciatura">Tesis de licenciatura</option>
+        </select>
+      </div>
+      <div class="fg"><label>Institución *</label><input type="text" id="d-inst" placeholder="Universidad o institución"></div>
+    </div>
+    <div class="fg"><label>Repositorio / URL</label><input type="text" id="d-urltesis" placeholder="Nombre del repositorio o URL"></div>`,
+};
+
+function updateDynamic() {
+  const tipo = gv('f-tipo');
+  document.getElementById('dyn-fields').innerHTML = DYN[tipo] || '';
+  if (tipo === 'capitulo' && !editId) addEditor();
+}
+
+function addEditor(ap = '', nm = '') {
+  const box = document.getElementById('editors-box');
+  if (!box) return;
+  const row = document.createElement('div');
+  row.className = 'arow';
+  row.innerHTML = `
+    <input type="text" placeholder="Apellido(s)" value="${esc(ap)}" class="e-ap">
+    <input type="text" placeholder="Nombre(s)" value="${esc(nm)}" class="e-nm">
+    <button type="button" class="rm-btn" onclick="this.parentElement.remove()" title="Eliminar">×</button>`;
+  box.appendChild(row);
+}
+
+function getEditors() {
+  return [...document.querySelectorAll('#editors-box .arow')].map(r => ({
+    ap: r.querySelector('.e-ap').value.trim(),
+    nm: r.querySelector('.e-nm').value.trim(),
+  })).filter(e => e.ap || e.nm);
+}
+
+// ── FORM: SUBMIT ───────────────────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const tipo = gv('f-tipo'), año = gv('f-año'), titulo = gv('f-titulo');
+  const autores = getAuthors();
+  if (!tipo)    { notify('Selecciona un tipo de fuente.', 'err'); return; }
+  if (!autores.length) { notify('Agrega al menos un autor.', 'err'); return; }
+  if (!año)     { notify('El año es obligatorio.', 'err'); return; }
+  if (!titulo)  { notify('El título es obligatorio.', 'err'); return; }
+
+  const kw = gv('f-kw').split(',').map(k => k.trim()).filter(Boolean);
+  const src = {
+    id: editId || uid(),
+    tipo, autores, año, titulo,
+    kw, sec: gv('f-sec'), notas: document.getElementById('f-notas').value.trim(),
+    added: editId ? (library.find(s => s.id === editId)?.added || iso()) : iso(),
+  };
+
+  if (tipo === 'libro') {
+    src.editorial = gv('d-editorial'); src.edicion = gv('d-edicion'); src.url = gv('d-url');
+  } else if (tipo === 'articulo') {
+    src.revista = gv('d-revista'); src.vol = gv('d-vol'); src.num = gv('d-num');
+    src.pags = gv('d-pags'); src.doi = gv('d-doi');
+  } else if (tipo === 'capitulo') {
+    src.tlibro = gv('d-tlibro'); src.editores = getEditors();
+    src.pcap = gv('d-pcap'); src.editcap = gv('d-editcap'); src.urlcap = gv('d-urlcap');
+  } else if (tipo === 'reporte') {
+    src.org = gv('d-org'); src.nrep = gv('d-nrep'); src.urlrep = gv('d-urlrep');
+  } else if (tipo === 'tesis') {
+    src.ttesis = gv('d-ttesis'); src.inst = gv('d-inst'); src.urltesis = gv('d-urltesis');
+  }
+
+  if (editId) {
+    const i = library.findIndex(s => s.id === editId);
+    if (i >= 0) library[i] = src;
+    editId = null;
+  } else {
+    library.push(src);
+  }
+
+  saveAll().then(() => {
+    notify('Fuente guardada.', 'ok');
+    resetForm();
+    renderAll();
+    showTab('lib');
+  });
+}
+
+function resetForm() {
+  ['f-tipo','f-año','f-titulo','f-kw','f-sec'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('f-notas').value = '';
+  document.getElementById('dyn-fields').innerHTML = '';
+  document.getElementById('authors-box').innerHTML = '';
+  addAuthor();
+  editId = null;
+  document.getElementById('form-title').textContent = 'Nueva fuente bibliográfica';
+}
+
+function cancelEdit() { resetForm(); if (editId) showTab('lib'); }
+
+function editSrc(id) {
+  const s = library.find(x => x.id === id);
+  if (!s) return;
+  editId = id;
+  showTab('add');
+  document.getElementById('form-title').textContent = 'Editar fuente';
+  sv('f-tipo', s.tipo); sv('f-año', s.año); sv('f-titulo', s.titulo);
+  sv('f-kw', (s.kw || []).join(', ')); sv('f-sec', s.sec || '');
+  document.getElementById('f-notas').value = s.notas || '';
+  document.getElementById('authors-box').innerHTML = '';
+  (s.autores || []).forEach(a => addAuthor(a.ap, a.nm));
+  if (!s.autores || !s.autores.length) addAuthor();
+  updateDynamic();
+  setTimeout(() => {
+    if (s.tipo === 'libro') { sv('d-editorial', s.editorial); sv('d-edicion', s.edicion); sv('d-url', s.url); }
+    else if (s.tipo === 'articulo') { sv('d-revista', s.revista); sv('d-vol', s.vol); sv('d-num', s.num); sv('d-pags', s.pags); sv('d-doi', s.doi); }
+    else if (s.tipo === 'capitulo') {
+      sv('d-tlibro', s.tlibro);
+      document.getElementById('editors-box').innerHTML = '';
+      (s.editores || []).forEach(e => addEditor(e.ap, e.nm));
+      if (!s.editores || !s.editores.length) addEditor();
+      sv('d-pcap', s.pcap); sv('d-editcap', s.editcap); sv('d-urlcap', s.urlcap);
+    }
+    else if (s.tipo === 'reporte') { sv('d-org', s.org); sv('d-nrep', s.nrep); sv('d-urlrep', s.urlrep); }
+    else if (s.tipo === 'tesis') { sv('d-ttesis', s.ttesis); sv('d-inst', s.inst); sv('d-urltesis', s.urltesis); }
+  }, 0);
+  window.scrollTo(0, 0);
+}
+
+function delSrc(id) {
+  if (!confirm('¿Eliminar esta fuente de la biblioteca?')) return;
+  library = library.filter(s => s.id !== id);
+  saveAll().then(() => { notify('Fuente eliminada.'); renderAll(); });
+}
+
+// ── APA ────────────────────────────────────────────────────────────────────
+function fmtAuthors(autores) {
+  if (!autores || !autores.length) return 's.a.';
+  const fmt = autores.map(a => {
+    if (!a.ap && !a.nm) return '';
+    if (!a.nm) return a.ap;
+    const ini = a.nm.trim().split(/\s+/).map(n => n[0].toUpperCase() + '.').join(' ');
+    return `${a.ap}, ${ini}`;
+  }).filter(Boolean);
+  if (!fmt.length) return 's.a.';
+  if (fmt.length === 1) return fmt[0];
+  if (fmt.length === 2) return fmt.join(' & ');
+  if (fmt.length <= 20) return fmt.slice(0, -1).join(', ') + ', & ' + fmt[fmt.length - 1];
+  return fmt.slice(0, 19).join(', ') + ', . . . ' + fmt[fmt.length - 1];
+}
+
+function fmtEditors(eds) {
+  if (!eds || !eds.length) return '';
+  const fmt = eds.map(a => {
+    if (!a.ap) return a.nm || '';
+    const ini = a.nm ? a.nm.trim().split(/\s+/).map(n => n[0].toUpperCase() + '.').join(' ') : '';
+    return ini ? `${ini} ${a.ap}` : a.ap;
+  }).filter(Boolean);
+  if (!fmt.length) return '';
+  return fmt.join(' & ') + (fmt.length === 1 ? ' (Ed.)' : ' (Eds.)');
+}
+
+function inText(s) {
+  const yr = s.año || 's.f.';
+  const au = s.autores || [];
+  if (!au.length) {
+    if (s.tipo === 'reporte' && s.org) return `(${s.org}, ${yr})`;
+    return `(s.a., ${yr})`;
+  }
+  const f = au[0].ap || au[0].nm || 's.a.';
+  if (au.length === 1) return `(${f}, ${yr})`;
+  if (au.length === 2) return `(${f} & ${au[1].ap || au[1].nm || ''}, ${yr})`;
+  return `(${f} et al., ${yr})`;
+}
+
+function fullRef(s, html = true) {
+  const em = t => html ? `<em>${t}</em>` : t;
+  const au = fmtAuthors(s.autores);
+  const yr = s.año || 's.f.';
+
+  switch (s.tipo) {
+    case 'libro': {
+      let r = `${au} (${yr}). ${em(escH(s.titulo))}`;
+      if (s.edicion) r += ` (${escH(s.edicion)})`;
+      r += '.';
+      if (s.editorial) r += ` ${escH(s.editorial)}.`;
+      if (s.url) r += ` ${escH(s.url)}`;
+      return r;
+    }
+    case 'articulo': {
+      let r = `${au} (${yr}). ${escH(s.titulo)}. ${em(escH(s.revista || ''))}`;
+      if (s.vol) { r += `, ${em(escH(s.vol))}`; if (s.num) r += `(${escH(s.num)})`; }
+      if (s.pags) r += `, ${escH(s.pags)}`;
+      r += '.';
+      if (s.doi) r += ` ${escH(s.doi)}`;
+      return r;
+    }
+    case 'capitulo': {
+      const eds = fmtEditors(s.editores);
+      let r = `${au} (${yr}). ${escH(s.titulo)}. `;
+      if (eds) r += `En ${escH(eds)}, `;
+      r += em(escH(s.tlibro || ''));
+      if (s.pcap) r += ` (pp. ${escH(s.pcap)})`;
+      r += '.';
+      if (s.editcap) r += ` ${escH(s.editcap)}.`;
+      if (s.urlcap) r += ` ${escH(s.urlcap)}`;
+      return r;
+    }
+    case 'reporte': {
+      const hasPersonal = s.autores && s.autores.some(a => a.nm);
+      const authorPart = hasPersonal ? au : (s.org || au);
+      let r = `${authorPart} (${yr}). ${em(escH(s.titulo))}`;
+      if (s.nrep) r += ` (Núm. ${escH(s.nrep)})`;
+      r += '.';
+      if (hasPersonal && s.org) r += ` ${escH(s.org)}.`;
+      if (s.urlrep) r += ` ${escH(s.urlrep)}`;
+      return r;
+    }
+    case 'tesis': {
+      const tt = { maestría: 'Tesis de maestría', doctorado: 'Tesis doctoral', licenciatura: 'Tesis de licenciatura' };
+      let r = `${au} (${yr}). ${em(escH(s.titulo))} [${tt[s.ttesis] || 'Tesis'}`;
+      if (s.inst) r += `, ${escH(s.inst)}`;
+      r += '].';
+      if (s.urltesis) r += ` ${escH(s.urltesis)}`;
+      return r;
+    }
+    default:
+      return `${au} (${yr}). ${em(escH(s.titulo || ''))}.`;
+  }
+}
+
+function sortKey(s) {
+  const a = s.autores;
+  if (a && a.length && a[0].ap) return a[0].ap.toLowerCase();
+  if (s.tipo === 'reporte' && s.org) return s.org.toLowerCase();
+  if (a && a.length && a[0].nm) return a[0].nm.toLowerCase();
+  return (s.titulo || 'z').toLowerCase();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+const TLABEL = { libro:'Libro', articulo:'Artículo', capitulo:'Capítulo', reporte:'Reporte', tesis:'Tesis' };
+const TBADGE = { libro:'b-libro', articulo:'b-articulo', capitulo:'b-capitulo', reporte:'b-reporte', tesis:'b-tesis' };
+
+function renderAll() { renderLib(); renderRefs(); }
+
+function renderLib(list) {
+  const box = document.getElementById('lib-box');
+  const lbl = document.getElementById('count-lbl');
+  if (!box) return;
+  const src = list !== undefined ? list : library;
+  const tot = library.length;
+
+  if (!tot) {
+    lbl.textContent = '';
+    box.innerHTML = `<div class="empty"><div class="empty-ico">📚</div><div class="empty-txt">Tu biblioteca está vacía</div><div class="empty-sub">Agrega tu primera fuente bibliográfica</div></div>`;
+    return;
+  }
+  lbl.textContent = list !== undefined ? `${src.length} de ${tot} fuentes` : `${tot} fuente${tot !== 1 ? 's' : ''}`;
+
+  const sorted = [...src].sort((a, b) => sortKey(a).localeCompare(sortKey(b), 'es'));
+  box.innerHTML = sorted.map(s => {
+    const auStr = (s.autores || []).map(a => [a.ap, a.nm].filter(Boolean).join(', ')).join('; ');
+    const cite = inText(s);
+    const kwTags = (s.kw || []).map(k => `<span class="tag">${escH(k)}</span>`).join('');
+    return `<div class="src-card">
+      <div class="src-hd">
+        <div>
+          <span class="badge ${TBADGE[s.tipo] || ''}">${TLABEL[s.tipo] || s.tipo}</span>
+          <div class="src-title" style="margin-top:6px">${escH(s.titulo)}</div>
+        </div>
+        <div class="src-actions">
+          <button class="btn btn-s btn-xs" onclick="editSrc('${s.id}')">Editar</button>
+          <button class="btn btn-d btn-xs" onclick="delSrc('${s.id}')">Eliminar</button>
+        </div>
+      </div>
+      <div class="src-meta">${escH(auStr)} (${escH(s.año)})</div>
+      <div class="src-cite" onclick="copyTxt('${escA(cite)}')" title="Copiar cita en texto">${escH(cite)} ✦</div>
+      <div class="tags">
+        ${s.sec ? `<span class="tag tag-sec">📁 ${escH(s.sec)}</span>` : ''}
+        ${kwTags}
+      </div>
+      ${s.notas ? `<div class="src-notes">${escH(s.notas)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderRefs() {
+  const box = document.getElementById('ref-box');
+  if (!box) return;
+  if (!library.length) {
+    box.innerHTML = `<div class="empty"><div class="empty-ico">📄</div><div class="empty-txt">No hay referencias aún</div></div>`;
+    return;
+  }
+  const sorted = [...library].sort((a, b) => sortKey(a).localeCompare(sortKey(b), 'es'));
+  box.innerHTML = `<div class="ref-list">${sorted.map(s => `<div class="ref-item">${fullRef(s, true)}</div>`).join('')}</div>`;
+}
+
+// ── SEARCH ─────────────────────────────────────────────────────────────────
+function filterLib() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  if (!q) { renderLib(); return; }
+  const filtered = library.filter(s => {
+    const hay = [
+      s.titulo, s.año,
+      (s.autores || []).map(a => `${a.ap} ${a.nm}`).join(' '),
+      (s.kw || []).join(' '),
+      s.notas, s.sec, s.org, s.revista, s.inst,
+    ].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  renderLib(filtered);
+}
+
+// ── EXPORT & COPY ──────────────────────────────────────────────────────────
+function exportJSON() {
+  const date = new Date().toISOString().slice(0, 10);
+  const name = `biblioteca_tesina_${date}.json`;
+  const blob = new Blob([JSON.stringify(library, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  notify(`Exportado: ${name}`, 'ok');
+}
+
+function copyRefs() {
+  if (!library.length) { notify('No hay referencias para copiar.', 'err'); return; }
+  const sorted = [...library].sort((a, b) => sortKey(a).localeCompare(sortKey(b), 'es'));
+  const text = sorted.map(s => fullRef(s, false)).join('\n\n');
+  navigator.clipboard.writeText(text)
+    .then(() => notify('Referencias copiadas al portapapeles.', 'ok'))
+    .catch(() => notify('Error al copiar. Usa Ctrl+A en la lista.', 'err'));
+}
+
+function copyTxt(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => notify(`Copiado: ${text}`, 'ok'))
+    .catch(() => notify('Error al copiar.', 'err'));
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function iso() { return new Date().toISOString(); }
+function gv(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function sv(id, v) { const el = document.getElementById(id); if (el && v != null) el.value = v; }
+function escH(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function esc(s) { return escH(s).replace(/'/g,'&#39;'); }
+function escA(s) { return String(s || '').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+
+function notify(msg, type = '') {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = 'notif' + (type ? ' ' + type : '') + ' show';
+  if (notifT) clearTimeout(notifT);
+  notifT = setTimeout(() => el.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
